@@ -42,12 +42,15 @@ select num ConsecutiveNums from Logs group by 1 having count(num) > 3
 
 solution 2:
 ```sql
-SELECT Num,
-       CASE
-         WHEN @prev = Num THEN @cnt := @cnt + 1  -- when clause 1
-         WHEN (@prev := Num) IS NOT NULL THEN @cnt := 1  -- when clause 2
-       END AS cnt
-FROM Logs, (SELECT @prev := NULL, @cnt := NULL) t1
+with cte as (
+    select num,
+    lead(num,1) over() num1,
+    lead(num,2) over() num2
+    from logs
+
+)
+
+select distinct num ConsecutiveNums from cte where (num=num1) and (num=num2)
 
 ```
 
